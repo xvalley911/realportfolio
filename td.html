@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-Do App</title>
+<style>
+  body {font-family: Arial, sans-serif; background: linear-gradient(180deg, #0f1724, #071026); color: #e6eef6; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0;}
+  .todo-container {background: rgba(255,255,255,0.05); padding: 24px; border-radius: 16px; backdrop-filter: blur(6px); width: 320px;}
+  h2 {margin-top:0; text-align:center;}
+  input {width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:#e6eef6; margin-bottom:12px;}
+  button {padding:10px 16px; border:none; border-radius:8px; background:#06b6d4; color:#022; font-weight:bold; cursor:pointer; margin-bottom:12px;}
+  button:hover{background:#0ea5a4;}
+  ul {list-style:none; padding:0; margin:0;}
+  li {display:flex; justify-content:space-between; align-items:center; padding:8px 12px; margin-bottom:8px; background:rgba(255,255,255,0.05); border-radius:8px;}
+  li.completed {text-decoration: line-through; color:#9aa4b2;}
+  .delete-btn {background:red; color:white; border:none; padding:4px 8px; border-radius:6px; cursor:pointer;}
+  @media(min-width:500px){.todo-container{width:360px;}}
+</style>
+</head>
+<body>
+<div class="todo-container">
+  <h2>To-Do List</h2>
+  <input type="text" id="taskInput" placeholder="Add a new task">
+  <button onclick="addTask()">Add Task</button>
+  <button onclick="clearTasks()" style="background:#f59e0b;margin-bottom:12px;">Clear All</button>
+  <ul id="taskList"></ul>
+</div>
+
+<script>
+const taskInput = document.getElementById('taskInput');
+const taskList = document.getElementById('taskList');
+
+// Load tasks from LocalStorage
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+renderTasks();
+
+function addTask(){
+  const task = taskInput.value.trim();
+  if(task===''){alert('Enter a task!'); return;}
+  tasks.push({text:task, completed:false});
+  saveTasks();
+  taskInput.value='';
+  renderTasks();
+}
+
+function toggleComplete(index){
+  tasks[index].completed = !tasks[index].completed;
+  saveTasks();
+  renderTasks();
+}
+
+function deleteTask(index){
+  tasks.splice(index,1);
+  saveTasks();
+  renderTasks();
+}
+
+function clearTasks(){
+  if(confirm('Clear all tasks?')){
+    tasks=[];
+    saveTasks();
+    renderTasks();
+  }
+}
+
+function saveTasks(){
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+function renderTasks(){
+  taskList.innerHTML='';
+  tasks.forEach((task,index)=>{
+    const li = document.createElement('li');
+    li.className = task.completed?'completed':'';
+    li.innerHTML = `<span onclick='toggleComplete(${index})' style='cursor:pointer'>${task.text}</span>
+                    <button class='delete-btn' onclick='deleteTask(${index})'>X</button>`;
+    taskList.appendChild(li);
+  });
+}
+</script>
+</body>
+</html>
